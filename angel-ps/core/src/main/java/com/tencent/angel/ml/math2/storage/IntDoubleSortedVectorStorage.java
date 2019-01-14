@@ -1,13 +1,11 @@
 package com.tencent.angel.ml.math2.storage;
 
-import java.util.Arrays;
-
-import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ml.math2.utils.ArrayCopy;
+import com.tencent.angel.ml.matrix.RowType;
 
 import java.util.Arrays;
-import java.util.Random;
 import java.util.HashSet;
+import java.util.Random;
 
 public class IntDoubleSortedVectorStorage implements IntDoubleVectorStorage {
   private int[] indices;
@@ -37,7 +35,7 @@ public class IntDoubleSortedVectorStorage implements IntDoubleVectorStorage {
   }
 
   public IntDoubleSortedVectorStorage(int dim) {
-    this(dim, Math.max(128, (int) (dim / 1000)));
+    this(dim, Math.min(64, Math.max(dim, 0)));
   }
 
   @Override public double get(int idx) {
@@ -46,7 +44,7 @@ public class IntDoubleSortedVectorStorage implements IntDoubleVectorStorage {
     } else if (size == 0 || idx > indices[size - 1] || idx < indices[0]) {
       return 0;
     } else {
-      int i = Arrays.binarySearch(indices, idx);
+      int i = Arrays.binarySearch(indices, 0, size-1, idx);
       return i >= 0 ? values[i] : 0;
     }
   }
@@ -63,7 +61,7 @@ public class IntDoubleSortedVectorStorage implements IntDoubleVectorStorage {
     } else if (idx > indices[size - 1]) {
       point = size;
     } else {
-      point = Arrays.binarySearch(indices, idx);
+      point = Arrays.binarySearch(indices, 0, size-1, idx);
       if (point >= 0) {
         values[point] = value;
         return;
@@ -271,7 +269,7 @@ public class IntDoubleSortedVectorStorage implements IntDoubleVectorStorage {
 
   @Override public boolean hasKey(int key) {
     return (size != 0 && key <= indices[size - 1] && key >= indices[0]
-      && Arrays.binarySearch(indices, key) > 0);
+      && Arrays.binarySearch(indices, 0, size-1, key) > 0);
   }
 
   @Override public RowType getType() {

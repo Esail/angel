@@ -19,6 +19,7 @@
 package com.tencent.angel.ml.core.conf
 
 import com.tencent.angel.ml.matrix.RowType
+import com.tencent.angel.model.output.format.{ColIdValueTextRowFormat, RowIdColIdValueTextRowFormat, TextColumnFormat}
 
 object MLConf {
 
@@ -32,13 +33,15 @@ object MLConf {
   val ML_DATA_INPUT_FORMAT = "ml.data.type"
   val DEFAULT_ML_DATA_INPUT_FORMAT = "libsvm"
   val ML_DATA_SPLITOR = "ml.data.splitor"
-  val DEFAULT_ML_DATA_SPLITOR = " "
+  val DEFAULT_ML_DATA_SPLITOR = "\\s+"
   val ML_DATA_IS_NEGY = "ml.data.is.negy"
   val DEFAULT_ML_DATA_IS_NEGY = true
   val ML_DATA_HAS_LABEL = "ml.data.has.label"
   val DEFAULT_ML_DATA_HAS_LABEL = true
-  val ML_DATA_TRANS_LABEL = "ml.data.trans.label"
-  val DEFAULT_ML_DATA_TRANS_LABEL = false
+  val ML_DATA_LABEL_TRANS = "ml.data.label.trans.class"
+  val DEFAULT_ML_DATA_LABEL_TRANS = "NoTrans"
+  val ML_DATA_LABEL_TRANS_THRESHOLD = "ml.data.label.trans.threshold"
+  val DEFAULT_ML_DATA_LABEL_TRANS_THRESHOLD = 0
   val ML_VALIDATE_RATIO = "ml.data.validate.ratio"
   val DEFAULT_ML_VALIDATE_RATIO = 0.05
   val ML_FEATURE_INDEX_RANGE = "ml.feature.index.range"
@@ -65,7 +68,7 @@ object MLConf {
   val ML_MODEL_SIZE = "ml.model.size"
   val DEFAULT_ML_MODEL_SIZE = -1
   val ML_MODEL_TYPE = "ml.model.type"
-  val DEFAULT_ML_MODEL_TYPE = RowType.T_DOUBLE_DENSE.toString
+  val DEFAULT_ML_MODEL_TYPE = RowType.T_FLOAT_DENSE.toString
   val ML_MODEL_IS_CLASSIFICATION = "ml.model.is.classification"
   val DEFAULT_ML_MODEL_IS_CLASSIFICATION = true
 
@@ -75,12 +78,9 @@ object MLConf {
   val DEFAULT_ML_BATCH_SAMPLE_RATIO = 1.0
   val ML_LEARN_RATE = "ml.learn.rate"
   val DEFAULT_ML_LEARN_RATE = 0.5
-  val ML_LEARN_DECAY = "ml.learn.decay"
-  val DEFAULT_ML_LEARN_DECAY = 0.5
+
   val ML_NUM_UPDATE_PER_EPOCH = "ml.num.update.per.epoch"
   val DEFAULT_ML_NUM_UPDATE_PER_EPOCH = 10
-  val ML_DECAY_INTERVALS = "ml.decay.intervals"
-  val DEFAULT_ML_DECAY_INTERVALS = 50
 
   val ML_MINIBATCH_SIZE = "ml.minibatch.size"
   val DEFAULT_ML_MINIBATCH_SIZE = 128
@@ -91,10 +91,16 @@ object MLConf {
   val DEFAULT_ML_FCLAYER_OPTIMIZER: String = DEFAULT_ML_OPTIMIZER
   val ML_EMBEDDING_OPTIMIZER = "ml.embedding.optimizer"
   val DEFAULT_ML_EMBEDDING_OPTIMIZER: String = DEFAULT_ML_OPTIMIZER
-  val ML_DENSEINPUTLAYER_OPTIMIZER = "ml.denseinputlayer.optimizer"
-  val DEFAULT_ML_DENSEINPUTLAYER_OPTIMIZER: String = DEFAULT_ML_OPTIMIZER
-  val ML_SPARSEINPUTLAYER_OPTIMIZER = "ml.sparseinputlayer.optimizer"
-  val DEFAULT_ML_SPARSEINPUTLAYER_OPTIMIZER: String = DEFAULT_ML_OPTIMIZER
+  val ML_INPUTLAYER_OPTIMIZER = "ml.inputlayer.optimizer"
+  val DEFAULT_ML_INPUTLAYER_OPTIMIZER: String = DEFAULT_ML_OPTIMIZER
+
+  val ML_FCLAYER_MATRIX_OUTPUT_FORMAT = "ml.fclayer.matrix.output.format"
+  val DEFAULT_ML_FCLAYER_MATRIX_OUTPUT_FORMAT: String = classOf[RowIdColIdValueTextRowFormat].getCanonicalName
+  val ML_EMBEDDING_MATRIX_OUTPUT_FORMAT = "ml.embedding.matrix.output.format"
+  val DEFAULT_ML_EMBEDDING_MATRIX_OUTPUT_FORMAT: String = classOf[TextColumnFormat].getCanonicalName
+  val ML_SIMPLEINPUTLAYER_MATRIX_OUTPUT_FORMAT = "ml.simpleinputlayer.matrix.output.format"
+  val DEFAULT_ML_SIMPLEINPUTLAYER_MATRIX_OUTPUT_FORMAT: String = classOf[ColIdValueTextRowFormat].getCanonicalName
+
 
   // Momentum
   val ML_OPT_MOMENTUM_MOMENTUM = "ml.opt.momentum.momentum"
@@ -109,10 +115,28 @@ object MLConf {
   val DEFAULT_ML_OPT_FTRL_ALPHA = 0.1
   val ML_OPT_FTRL_BETA = "ml.opt.ftrl.beta"
   val DEFAULT_ML_OPT_FTRL_BETA = 1.0
+  // AdaDelta
+  val ML_OPT_ADADELTA_BETA = "ml.opt.adadelta.beta"
+  val DEFAULT_ML_OPT_ADADELTA_BETA = 0.9
+  // AdaGrad
+  val ML_OPT_ADAGRAD_BETA = "ml.opt.adadelta.beta"
+  val DEFAULT_ML_OPT_ADADGRAD_BETA = 0.9
+
+  // Decays
+  val ML_OPT_DECAY_CLASS_NAME = "ml.opt.decay.class.name"
+  val DEFAULT_ML_OPT_DECAY_CLASS_NAME = "StandardDecay"
+  val ML_OPT_DECAY_ON_BATCH = "ml.opt.decay.on.batch"
+  val DEFAULT_ML_OPT_DECAY_ON_BATCH = false
+  val ML_OPT_DECAY_INTERVALS = "ml.opt.decay.intervals"
+  val DEFAULT_ML_OPT_DECAY_INTERVALS = 100
+  val ML_OPT_DECAY_ALPHA = "ml.opt.decay.alpha"
+  val DEFAULT_ML_OPT_DECAY_ALPHA = 0.001
+  val ML_OPT_DECAY_BETA = "ml.opt.decay.beta"
+  val DEFAULT_ML_OPT_DECAY_BETA = 0.001
 
   // Reg param
   val ML_REG_L2 = "ml.reg.l2"
-  val DEFAULT_ML_REG_L2 = 0.005
+  val DEFAULT_ML_REG_L2 = 0.0
   val ML_REG_L1 = "ml.reg.l1"
   val DEFAULT_ML_REG_L1 = 0.0
 
@@ -189,6 +213,11 @@ object MLConf {
   /** The predict error of all samples */
   val TRAIN_ERROR = "train.error"
   val VALID_ERROR = "validate.error"
+
+  /** The predict error of all samples */
+  val ML_MATRIX_DOT_USE_PARALLEL_EXECUTOR = "ml.matrix.dot.use.parallel.executor"
+  val DEFAULT_ML_MATRIX_DOT_USE_PARALLEL_EXECUTOR = false
+
 }
 
 class MLConf {}
